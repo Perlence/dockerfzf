@@ -1,7 +1,5 @@
 #!/bin/bash
-# A simple script to select containers and images with fzf and remove them
-
-FZF='fzf --reverse -m'
+# A simple script to select containers and images with fzf for bulk operations
 
 # Test if fzf and docker are in PATH
 if ! which docker fzf > /dev/null 2>&1
@@ -10,7 +8,17 @@ then
   exit 1
 fi
 
+FZF='fzf --reverse -m'
+
 case $1 in
+stop)
+  # Select and stop containers by their ID
+  docker ps | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
+  ;;
+start)
+  # Select and start containers by their ID
+  docker ps -a | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
+  ;;
 rm)
   # Select and remove containers by their ID
   docker ps -a | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
@@ -23,8 +31,19 @@ rmt)
   # Select and remove images by their tags
   docker images | tail -n +2 | $FZF | awk '{print $1 ":" $2}' | xargs -r docker rmi ${@:2}
   ;;
+network)
+  case $2 in
+  rm)
+    docker network ls | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
+    ;;
+  *)
+    echo "error: unsupported command '$@'"
+    exit 1
+    ;;
+  esac
+  ;;
 *)
-  echo "error: unsupported command '$1'"
+  echo "error: unsupported command '$@'"
   exit 1
   ;;
 esac
