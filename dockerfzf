@@ -1,0 +1,30 @@
+#!/bin/bash
+# A simple script to select containers and images with fzf and remove them
+
+FZF='fzf --reverse -m'
+
+# Test if fzf and docker are in PATH
+if ! which docker fzf > /dev/null 2>&1
+then
+  echo "error: fzf is not installed"
+  exit 1
+fi
+
+case $1 in
+rm)
+  # Select and remove containers by their ID
+  docker ps -a | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
+  ;;
+rmi)
+  # Select and remove images by their ID
+  docker images | tail -n +2 | $FZF | awk '{print $3}' | xargs -r docker ${@:1}
+  ;;
+rmt)
+  # Select and remove images by their tags
+  docker images | tail -n +2 | $FZF | awk '{print $1 ":" $2}' | xargs -r docker rmi ${@:2}
+  ;;
+*)
+  echo "error: unsupported command '$1'"
+  exit 1
+  ;;
+esac
