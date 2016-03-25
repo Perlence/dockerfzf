@@ -34,6 +34,7 @@ rmt)
 network)
   case $2 in
   rm)
+    # Select and remove networks by their ID
     docker network ls | tail -n +2 | $FZF | awk '{print $1}' | xargs -r docker ${@:1}
     ;;
   *)
