@@ -37,6 +37,23 @@ rmt)
   # Select and remove images by their tags
   docker images | tail -n +2 | $FZFM | awk '{print $1 ":" $2}' | xargs -r docker rmi ${@:2}
   ;;
+volume)
+  case $2 in
+  rm)
+    # Select and remove volumes by their ID
+    docker volume ls | tail -n +2 | $FZFM | awk '{print $2}' | xargs -r docker ${@:1}
+    ;;
+  inspect)
+    # Select and inspect volume by its ID
+    ID=$(docker volume ls | tail -n +2 | $FZF | awk '{print $2}')
+    [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
+    ;;
+  *)
+    echo "error: unsupported command '$@'"
+    exit 1
+    ;;
+  esac
+  ;;
 network)
   case $2 in
   rm)
