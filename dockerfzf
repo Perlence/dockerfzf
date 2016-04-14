@@ -12,22 +12,18 @@ FZF='fzf --reverse'
 FZFM='fzf --reverse -m'
 
 case $1 in
-stop)
-  # Select and stop containers by their ID
+stop|kill)
+  # Select and stop/kill containers by their ID
   docker ps | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker ${@:1}
   ;;
-start)
-  # Select and start containers by their ID
+start|rm)
+  # Select and start/rm containers by their ID
   docker ps -a | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker ${@:1}
   ;;
 inspect)
   # Select and inspect container by its ID
   ID=$(docker ps -a | tail -n +2 | $FZF | awk '{print $1}')
   [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
-  ;;
-rm)
-  # Select and remove containers by their ID
-  docker ps -a | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker ${@:1}
   ;;
 rmi)
   # Select and remove images by their ID
