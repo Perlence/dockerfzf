@@ -25,6 +25,11 @@ inspect)
   ID=$(docker ps -a | tail -n +2 | $FZF | awk '{print $1}')
   [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
   ;;
+inspecti)
+  # Select and inspect image by its ID
+  ID=$(docker images | tail -n +2 | $FZF | awk '{print $3}')
+  [ -n "$ID" ] && docker inspect ${@:2} $ID 2>&1 | less
+  ;;
 rmi)
   # Select and remove images by their ID
   docker images | tail -n +2 | $FZFM | awk '{print $3}' | xargs -r docker ${@:1}
