@@ -1,5 +1,5 @@
 #!/bin/bash
-# A simple script to select containers and images with fzf for bulk operations
+# A simple script to select Docker containers and images with fzf for bulk operations
 
 # Test if fzf and docker are in PATH
 if ! which docker fzf > /dev/null 2>&1
