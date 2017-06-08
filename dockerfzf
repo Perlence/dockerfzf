@@ -1,9 +1,8 @@
 #!/bin/bash
-# A simple script to select Docker containers and images with fzf for bulk operations
+# A simple script to select containers and images with fzf for bulk operations
 
 # Test if fzf and docker are in PATH
-if ! which docker fzf > /dev/null 2>&1
-then
+if ! which docker fzf > /dev/null 2>&1; then
   echo "error: fzf is not installed"
   exit 1
 fi
@@ -12,46 +11,34 @@ FZF='fzf --reverse'
 FZFM='fzf --reverse -m'
 
 case $1 in
-stop|kill)
-  # Select and stop/kill containers by their ID
-  docker ps | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker ${@:1}
+kill|pause|restart|stop|unpause|update)
+  docker ps | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
   ;;
-start|rm|attach|logs)
-  # Select and start/rm/attach/log containers by their ID
+rm|start)
+  docker ps -a | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
+  ;;
+attach|logs|port|top)
   ID=$(docker ps -a | tail -n +2 | $FZFM | awk '{print $1}')
-  [ -n "$ID" ] && exec docker ${@:1} $ID
+  [ -n "$ID" ] && exec docker "${@:1}" "$ID"
   ;;
 inspect)
-  # Select and inspect container by its ID
   ID=$(docker ps -a | tail -n +2 | $FZF | awk '{print $1}')
-  [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
-  ;;
-inspecti)
-  # Select and inspect image by its ID
-  ID=$(docker images | tail -n +2 | $FZF | awk '{print $3}')
-  [ -n "$ID" ] && docker inspect ${@:2} $ID 2>&1 | less
+  [ -n "$ID" ] && docker "${@:1}" "$ID" 2>&1 | less
   ;;
 rmi)
-  # Select and remove images by their ID
-  docker images | tail -n +2 | $FZFM | awk '{print $3}' | xargs -r docker ${@:1}
+  docker images | tail -n +2 | $FZFM | awk '{print $3}' | xargs -r docker "${@:1}"
   ;;
 rmt)
-  # Select and remove images by their tags
-  docker images | tail -n +2 | $FZFM | awk '{print $1 ":" $2}' | xargs -r docker rmi ${@:2}
+  docker images | tail -n +2 | $FZFM | awk '{print $1 ":" $2}' | xargs -r docker rmi "${@:2}"
   ;;
-volume)
+image)
   case $2 in
-  rm)
-    # Select and remove volumes by their ID
-    docker volume ls | tail -n +2 | $FZFM | awk '{print $2}' | xargs -r docker ${@:1}
-    ;;
   inspect)
-    # Select and inspect volume by its ID
-    ID=$(docker volume ls | tail -n +2 | $FZF | awk '{print $2}')
-    [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
+    ID=$(docker images | tail -n +2 | $FZF | awk '{print $3}')
+    [ -n "$ID" ] && docker inspect "${@:2}" "$ID" 2>&1 | less
     ;;
-  *)
-    echo "error: unsupported command '$@'"
+  *):
+    echo "usage: dockerfzf image inspect"
     exit 1
     ;;
   esac
@@ -59,22 +46,79 @@ volume)
 network)
   case $2 in
   rm)
-    # Select and remove networks by their ID
-    docker network ls | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker ${@:1}
+    docker network ls | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
     ;;
   inspect)
-    # Select and inspect network by its ID
     ID=$(docker network ls | tail -n +2 | $FZF | awk '{print $1}')
-    [ -n "$ID" ] && docker ${@:1} $ID 2>&1 | less
+    [ -n "$ID" ] && docker "${@:1}" "$ID" 2>&1 | less
+    ;;
+  *):
+    echo "usage: dockerfzf network {inspect,rm}"
+    exit 1
+    ;;
+  esac
+  ;;
+node)
+  case $2 in
+  demote|promote|ps|rm|update)
+    docker node ls | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
+    ;;
+  inspect)
+    ID=$(docker node ls | tail -n +2 | $FZF | awk '{print $1}')
+    [ -n "$ID" ] && docker "${@:1}" "$ID" 2>&1 | less
     ;;
   *)
-    echo "error: unsupported command '$@'"
+    echo "usage: dockerfzf node {demote,inspect,promote,ps,rm,update}"
+    exit 1
+    ;;
+  esac
+  ;;
+service)
+  case $2 in
+  create)
+    docker images | tail -n +2 | $FZF | awk '{print $3}' | xargs -r docker "${@:1}"
+    ;;
+  logs|ps|rm|update)
+    docker service ls | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
+    ;;
+  inspect)
+    ID=$(docker service ls | tail -n +2 | $FZF | awk '{print $1}')
+    [ -n "$ID" ] && docker "${@:1}" "$ID" 2>&1 | less
+    ;;
+  *)
+    echo "usage: dockerfzf service {create,inspect,logs,ps,rm,update}"
+    exit 1
+    ;;
+  esac
+  ;;
+stack)
+  case $2 in
+  ps|rm|services)
+    docker stack ls | tail -n +2 | $FZFM | awk '{print $1}' | xargs -r docker "${@:1}"
+    ;;
+  *)
+    echo "usage: dockerfzf stack {ps,rm,services}"
+    exit 1
+    ;;
+  esac
+  ;;
+volume)
+  case $2 in
+  rm)
+    docker volume ls | tail -n +2 | $FZFM | awk '{print $2}' | xargs -r docker "${@:1}"
+    ;;
+  inspect)
+    ID=$(docker volume ls | tail -n +2 | $FZF | awk '{print $2}')
+    [ -n "$ID" ] && docker "${@:1}" "$ID" 2>&1 | less
+    ;;
+  ""):
+    echo "usage: dockerfzf volume {inspect,rm}"
     exit 1
     ;;
   esac
   ;;
 *)
-  echo "error: unsupported command '$@'"
+  echo "error: unsupported command '$*'"
   exit 1
   ;;
 esac

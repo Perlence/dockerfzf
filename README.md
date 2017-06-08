@@ -10,25 +10,39 @@ dockerfzf
 dockerfzf COMMAND... [DOCKER_ARG...]
 ```
 
-* `dockerfzf {stop,kill}` Select and stop/kill containers by their ID.
+* `dockerfzf {kill,pause,restart,stop,unpause,update}` Select running containers and perform an action.
 
-* `dockerfzf {start,rm,attach,logs}` Select and start/rm/attach/log containers by their ID.
+* `dockerfzf {rm,start}` Select containers and perform an action.
 
-* `dockerfzf inspect` Select and inspect container by its ID.
+* `dockerfzf {attach,logs,port,top}` Select a containers and perform an action.
 
-* `dockerfzf inspecti` Select and inspect image by its ID.
+* `dockerfzf inspect` Select and inspect a container.
 
 * `dockerfzf rmi` Select and remove images by their ID.
 
 * `dockerfzf rmt` Select and remove images by their tags.
 
-* `dockerfzf volume rm` Select and remove volumes by their ID.
+* `dockerfzf image inspect` Select and inspect an image.
 
-* `dockerfzf volume inspect` Select and inspect volume by its ID.
+* `dockerfzf network inspect` Select and inspect a network.
 
-* `dockerfzf network rm` Select and remove networks by their ID.
+* `dockerfzf network rm` Select and remove networks.
 
-* `dockerfzf network inspect` Select and inspect network by its ID.
+* `dockerfzf node {demote,promote,ps,rm,update}` Select nodes and perform an action.
+
+* `dockerfzf node inspect` Select and inspect a node.
+
+* `dockerfzf service create` Select an image and create a service from it.
+
+* `dockerfzf service {logs,ps,rm,update}` Select services and perform an action.
+
+* `dockerfzf service inspect` Select and inspect a service.
+
+* `dockerfzf stack {ps,rm,services}` Select stacks and perform an action.
+
+* `dockerfzf volume inspect` Select and inspect a volume.
+
+* `dockerfzf volume rm` Select and remove volumes.
 
 
 # Examples
